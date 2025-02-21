@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Portfolio Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 80%;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #444;
+        }
+
+        .form-section, .portfolio-section {
+            margin-bottom: 30px;
+        }
+
+        label, input, button {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"], input[type="number"] {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f8f9fa;
+        }
+
+        .gain {
+            color: green;
+        }
+
+        .loss {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Stock Portfolio Tracker</h1>
+
+        <div class="form-section">
+            <h2>Add Stock</h2>
+            <form id="addStockForm">
+                <label for="symbol">Stock Symbol:</label>
+                <input type="text" id="symbol" required>
+
+                <label for="shares">Number of Shares:</label>
+                <input type="number" id="shares" required>
+
+                <label for="price">Purchase Price per Share:</label>
+                <input type="number" step="0.01" id="price" required>
+
+                <button type="submit">Add Stock</button>
+            </form>
+        </div>
+
+        <div class="portfolio-section">
+            <h2>Portfolio Summary</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Shares</th>
+                        <th>Current Price ($)</th>
+                        <th>Current Value ($)</th>
+                        <th>Gain/Loss (%)</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="portfolioTable">
+                    <!-- Portfolio data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const portfolioTable = document.getElementById('portfolioTable');
+        const addStockForm = document.getElementById('addStockForm');
+        let portfolio = [];
+
+        addStockForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const symbol = document.getElementById('symbol').value.toUpperCase();
+            const shares = parseFloat(document.getElementById('shares').value);
+            const price = parseFloat(document.getElementById('price').value);
+
+            portfolio.push({ symbol, shares, purchase_price: price });
+            updatePortfolioTable();
+
+            addStockForm.reset();
+        });
+
+        function removeStock(symbol) {
+            portfolio = portfolio.filter(stock => stock.symbol !== symbol);
+            updatePortfolioTable();
+        }
+
+        function updatePortfolioTable() {
+            portfolioTable.innerHTML = '';
+            portfolio.forEach(stock => {
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td>${stock.symbol}</td>
+                    <td>${stock.shares}</td>
+                    <td>Loading...</td>
+                    <td>Loading...</td>
+                    <td>Loading...</td>
+                    <td><button onclick="removeStock('${stock.symbol}')">Remove</button></td>
+                `;
+                portfolioTable.appendChild(row);
+
+                // Placeholder for API integration to fetch current price
+                fetchCurrentPrice(stock.symbol, stock.shares, stock.purchase_price, row);
+            });
+        }
+
+        function fetchCurrentPrice(symbol, shares, purchasePrice, row) {
+            // Simulating API call with a random price for demonstration
+            const currentPrice = (Math.random() * (150 - 50) + 50).toFixed(2);
+            const currentValue = (currentPrice * shares).toFixed(2);
+            const gainLoss = (((currentPrice - purchasePrice) / purchasePrice) * 100).toFixed(2);
+            const gainLossClass = gainLoss >= 0 ? 'gain' : 'loss';
+
+            row.children[2].innerText = `$${currentPrice}`;
+            row.children[3].innerText = `$${currentValue}`;
+            row.children[4].innerHTML = `<span class="${gainLossClass}">${gainLoss}%</span>`;
+        }
+    </script>
+</body>
+</html>
